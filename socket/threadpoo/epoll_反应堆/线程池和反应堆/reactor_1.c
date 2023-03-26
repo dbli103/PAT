@@ -1,4 +1,4 @@
-//·´Ó¦¶Ñ¼òµ¥°æ
+//ååº”å †ç®€å•ç‰ˆ
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -14,10 +14,10 @@
 #define _BUF_LEN_  1024
 #define _EVENT_SIZE_ 1024
 
-//È«¾ÖepollÊ÷µÄ¸ù
+//å…¨å±€epollæ ‘çš„æ ¹
 int gepfd = 0;
 
-//ÊÂ¼şÇı¶¯½á¹¹Ìå
+//äº‹ä»¶é©±åŠ¨ç»“æ„ä½“
 typedef struct xx_event{
     int fd;
     int events;
@@ -32,22 +32,22 @@ xevent myevents[_EVENT_SIZE_+1];
 
 void readData(int fd,int events,void *arg);
 
-//Ìí¼ÓÊÂ¼ş
+//æ·»åŠ äº‹ä»¶
 //eventadd(lfd,EPOLLIN,initAccept,&myevents[_EVENT_SIZE_-1],&myevents[_EVENT_SIZE_-1]);
 void eventadd(int fd,int events,void (*call_back)(int ,int ,void *),void *arg,xevent *ev)
 {
     ev->fd = fd;
     ev->events = events;
-    //ev->arg = arg;//´ú±í½á¹¹Ìå×Ô¼º,¿ÉÒÔÍ¨¹ıargµÃµ½½á¹¹ÌåµÄËùÓĞĞÅÏ¢
+    //ev->arg = arg;//ä»£è¡¨ç»“æ„ä½“è‡ªå·±,å¯ä»¥é€šè¿‡argå¾—åˆ°ç»“æ„ä½“çš„æ‰€æœ‰ä¿¡æ¯
     ev->call_back = call_back;
 
     struct epoll_event epv;
     epv.events = events;
-    epv.data.ptr = ev;//ºËĞÄË¼Ïë
-    epoll_ctl(gepfd,EPOLL_CTL_ADD,fd,&epv);//ÉÏÊ÷
+    epv.data.ptr = ev;//æ ¸å¿ƒæ€æƒ³
+    epoll_ctl(gepfd,EPOLL_CTL_ADD,fd,&epv);//ä¸Šæ ‘
 }
 
-//ĞŞ¸ÄÊÂ¼ş
+//ä¿®æ”¹äº‹ä»¶
 //eventset(fd,EPOLLOUT,senddata,arg,ev);
 void eventset(int fd,int events,void (*call_back)(int ,int ,void *),void *arg,xevent *ev)
 {
@@ -59,10 +59,10 @@ void eventset(int fd,int events,void (*call_back)(int ,int ,void *),void *arg,xe
     struct epoll_event epv;
     epv.events = events;
     epv.data.ptr = ev;
-    epoll_ctl(gepfd,EPOLL_CTL_MOD,fd,&epv);//ĞŞ¸Ä
+    epoll_ctl(gepfd,EPOLL_CTL_MOD,fd,&epv);//ä¿®æ”¹
 }
 
-//É¾³ıÊÂ¼ş
+//åˆ é™¤äº‹ä»¶
 void eventdel(xevent *ev,int fd,int events)
 {
 	printf("begin call %s\n",__FUNCTION__);
@@ -76,10 +76,10 @@ void eventdel(xevent *ev,int fd,int events)
     struct epoll_event epv;
     epv.data.ptr = NULL;
     epv.events = events;
-    epoll_ctl(gepfd,EPOLL_CTL_DEL,fd,&epv);//ÏÂÊ÷
+    epoll_ctl(gepfd,EPOLL_CTL_DEL,fd,&epv);//ä¸‹æ ‘
 }
 
-//·¢ËÍÊı¾İ
+//å‘é€æ•°æ®
 void senddata(int fd,int events,void *arg)
 {
     printf("begin call %s\n",__FUNCTION__);
@@ -89,37 +89,37 @@ void senddata(int fd,int events,void *arg)
     eventset(fd,EPOLLIN,readData,arg,ev);
 }
 
-//¶ÁÊı¾İ
+//è¯»æ•°æ®
 void readData(int fd,int events,void *arg)
 {
     printf("begin call %s\n",__FUNCTION__);
     xevent *ev = arg;
 
     ev->buflen = Read(fd,ev->buf,sizeof(ev->buf));
-    if(ev->buflen>0) //¶Áµ½Êı¾İ
+    if(ev->buflen>0) //è¯»åˆ°æ•°æ®
 	{	
 		//void eventset(int fd,int events,void (*call_back)(int ,int ,void *),void *arg,xevent *ev)
         eventset(fd,EPOLLOUT,senddata,arg,ev);
 
     }
-	else if(ev->buflen==0) //¶Ô·½¹Ø±ÕÁ¬½Ó
+	else if(ev->buflen==0) //å¯¹æ–¹å…³é—­è¿æ¥
 	{
         Close(fd);
         eventdel(ev,fd,EPOLLIN);
     }
 
 }
-//ĞÂÁ¬½Ó´¦Àí
+//æ–°è¿æ¥å¤„ç†
 void initAccept(int fd,int events,void *arg)
 {
-    printf("begin call %s,gepfd =%d\n",__FUNCTION__,gepfd);//__FUNCTION__ º¯ÊıÃû
+    printf("begin call %s,gepfd =%d\n",__FUNCTION__,gepfd);//__FUNCTION__ å‡½æ•°å
 
     int i;
     struct sockaddr_in addr;
     socklen_t len = sizeof(addr);
-    int cfd = Accept(fd,(struct sockaddr*)&addr,&len);//ÊÇ·ñ»á×èÈû£¿
+    int cfd = Accept(fd,(struct sockaddr*)&addr,&len);//æ˜¯å¦ä¼šé˜»å¡ï¼Ÿ
 	
-	//²éÕÒmyeventsÊı×éÖĞ¿ÉÓÃµÄÎ»ÖÃ
+	//æŸ¥æ‰¾myeventsæ•°ç»„ä¸­å¯ç”¨çš„ä½ç½®
     for(i = 0 ; i < _EVENT_SIZE_; i ++)
 	{
         if(myevents[i].fd==0)
@@ -128,64 +128,64 @@ void initAccept(int fd,int events,void *arg)
         }
     }
 
-    //ÉèÖÃ¶ÁÊÂ¼ş
+    //è®¾ç½®è¯»äº‹ä»¶
     eventadd(cfd,EPOLLIN,readData,&myevents[i],&myevents[i]);
 }
 
 int main(int argc,char *argv[])
 {
-	//´´½¨socket
+	//åˆ›å»ºsocket
     int lfd = Socket(AF_INET,SOCK_STREAM,0);
 
-    //¶Ë¿Ú¸´ÓÃ
+    //ç«¯å£å¤ç”¨
     int opt = 1;
     setsockopt(lfd,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
-	//°ó¶¨
+	//ç»‘å®š
     struct sockaddr_in servaddr;
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(8888);
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     Bind(lfd,(struct sockaddr*)&servaddr,sizeof(servaddr));
     
-	//¼àÌı
+	//ç›‘å¬
     Listen(lfd,128);
 
-	//´´½¨epollÊ÷¸ù½Úµã
+	//åˆ›å»ºepollæ ‘æ ¹èŠ‚ç‚¹
     gepfd = epoll_create(1024);
     printf("gepfd === %d\n",gepfd);
 
     struct epoll_event events[1024];
 
-    //Ìí¼Ó×î³õÊ¼ÊÂ¼ş£¬½«ÕìÌıµÄÃèÊö·ûÉÏÊ÷
+    //æ·»åŠ æœ€åˆå§‹äº‹ä»¶ï¼Œå°†ä¾¦å¬çš„æè¿°ç¬¦ä¸Šæ ‘
     eventadd(lfd,EPOLLIN,initAccept,&myevents[_EVENT_SIZE_],&myevents[_EVENT_SIZE_]);
     //void eventadd(int fd,int events,void (*call_back)(int ,int ,void *),void *arg,xevent *ev)
 
     while(1)
 	{
         int nready = epoll_wait(gepfd,events,1024,-1);
-		if(nready<0) //µ÷ÓÃepoll_waitÊ§°Ü
+		if(nready<0) //è°ƒç”¨epoll_waitå¤±è´¥
 		{
 			perr_exit("epoll_wait error");
 			
 		}
-        else if(nready>0) //µ÷ÓÃepoll_wait³É¹¦,·µ»ØÓĞÊÂ¼ş·¢ÉúµÄÎÄ¼şÃèÊö·ûµÄ¸öÊı
+        else if(nready>0) //è°ƒç”¨epoll_waitæˆåŠŸ,è¿”å›æœ‰äº‹ä»¶å‘ç”Ÿçš„æ–‡ä»¶æè¿°ç¬¦çš„ä¸ªæ•°
 		{
             int i = 0;
             for(i=0;i<nready; i++)
 			{
-                xevent *xe = events[i].data.ptr;//È¡ptrÖ¸Ïò½á¹¹ÌåµØÖ·
+                xevent *xe = events[i].data.ptr;//å–ptræŒ‡å‘ç»“æ„ä½“åœ°å€
                 printf("fd=%d\n",xe->fd);
 
                 if(xe->events & events[i].events)
 				{
-                    xe->call_back(xe->fd,xe->events,xe);//µ÷ÓÃÊÂ¼ş¶ÔÓ¦µÄ»Øµ÷
+                    xe->call_back(xe->fd,xe->events,xe);//è°ƒç”¨äº‹ä»¶å¯¹åº”çš„å›è°ƒ
                 }
             }
         }
     }
 
-	//¹Ø±Õ¼àÌıÎÄ¼şÃèÊö·û
+	//å…³é—­ç›‘å¬æ–‡ä»¶æè¿°ç¬¦
 	Close(lfd);
 
     return 0;

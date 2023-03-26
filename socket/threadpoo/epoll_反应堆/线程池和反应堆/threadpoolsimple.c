@@ -50,6 +50,7 @@ void *thrRun(void *arg)
         pthread_mutex_unlock(&thrPool->pool_lock);
         printf("001\n");
         task->task_func(task->arg);//执行回调函数
+        free(task);
         printf("002\n");
     }
     
@@ -94,11 +95,7 @@ void destroy_threadpool(ThreadPool *pool)
     pool->shutdown = 1;//开始自爆
     pthread_cond_broadcast(&pool->not_empty_task);//诱杀 
 
-    int i = 0;
-    for(i = 0; i < pool->thr_num ; i++)
-	{
-        pthread_join(pool->threads[i],NULL);
-    }
+
 
     pthread_cond_destroy(&pool->not_empty_task);
     pthread_cond_destroy(&pool->empty_task);

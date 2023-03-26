@@ -125,7 +125,7 @@ void acceptconn(int lfd, int events, void *arg)
         }
 
         /* 给cfd设置一个 myevent_s 结构体, 回调函数 设置为 recvdata */
-
+ 
         eventset(&g_events[i], cfd, recvdata, &g_events[i]);
         eventadd(g_efd, EPOLLIN, &g_events[i]);                         //将cfd添加到红黑树g_efd中,监听读事件
 

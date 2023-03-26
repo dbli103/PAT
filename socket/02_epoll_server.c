@@ -1,13 +1,3 @@
-/* ************************************************************************
- *       Filename:  02_epoll_server.c
- *    Description:  
- *        Version:  1.0
- *        Created:  2019年02月25日 12时18分53秒
- *       Revision:  none
- *       Compiler:  gcc
- *         Author:  YOUR NAME (), 
- *        Company:  
- * ************************************************************************/
 
 
 #include <stdio.h>
